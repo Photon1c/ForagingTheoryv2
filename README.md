@@ -20,7 +20,7 @@ Welcome to Buffet Race! A 3D foraging simulation and playground for exploring na
 - Beautiful procedural wall and ground visuals (sky/clouds, grass)
 - Scientific inspiration: foraging theory, producer-scrounger models, ideal free distribution, marginal value theorem, and more!
 
-## 🧑‍💻 Local Deployment
+## 🧑‍💻 Local Development & Deployment
 
 1. **Clone the repo:**
    ```bash
@@ -31,11 +31,16 @@ Welcome to Buffet Race! A 3D foraging simulation and playground for exploring na
    ```bash
    npm install
    ```
-3. **Start the app:**
+3. **Start the app (development):**
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+   The output will be in the `dist/` directory, ready for deployment.
 
 ## 🎮 Controls
 - **Set player and food count** in the top bar
@@ -90,28 +95,10 @@ These concepts are highly relevant to AI, robotics, and resource management syst
 - **In Development:** Advanced foraging concepts and algorithms are actively being developed and will be added in future updates.
 - **Instructions:** The in-app instructions also note that this is a base template and that advanced features are in progress.
 
-## Getting Started
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-2. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-3. **Open your browser:**
-   Visit `http://localhost:5173` (or the port shown in your terminal).
-
-## Deployment
-To build for production:
-```bash
-npm run build
-```
-The output will be in the `dist/` directory, ready for deployment.
-
 ## GitHub Repository
 [Photon1c/ForagingTheory](https://github.com/Photon1c/ForagingTheory)
 
 ---
 
 *This project is a starting point for foraging theory experiments. Contributions and feedback are welcome!*
+
