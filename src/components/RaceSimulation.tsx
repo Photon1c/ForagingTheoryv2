@@ -1,17 +1,16 @@
 import { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Text, KeyboardControls, useKeyboardControls, useGLTF, useTexture } from '@react-three/drei';
+import { useGLTF, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 // Make THREE available globally for OrbitControls.js
 if (typeof window !== 'undefined') {
   (window as any).THREE = THREE;
 }
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { BuffetCamera } from './buffetcamera';
-import { updateBuffetPlayers } from './buffetplayers';
-import React, { useCallback, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { EffectComposer, Outline } from '@react-three/postprocessing';
 import { extend } from '@react-three/fiber';
+import { updateBuffetPlayers } from './buffetplayers';
 extend({ OrbitControls: OrbitControlsImpl });
 
 // TypeScript: allow <orbitControls /> in JSX
@@ -137,61 +136,6 @@ const FoodItemMesh: React.FC<{ item: FoodItem }> = ({ item }) => {
     </group>
   );
 };
-
-// Keyboard controls map
-const keyboardMap = [
-  { name: 'moveForward', keys: ['ArrowUp', 'KeyW'] },
-  { name: 'moveBackward', keys: ['ArrowDown', 'KeyS'] },
-  { name: 'moveLeft', keys: ['ArrowLeft', 'KeyA'] },
-  { name: 'moveRight', keys: ['ArrowRight', 'KeyD'] },
-];
-
-// CameraController for WASD/arrow key movement
-const moveSpeed = 0.5;
-const keyMap: { [key: string]: [number, number, number] } = {
-  ArrowUp:    [0, 0, -1],
-  ArrowDown:  [0, 0, 1],
-  ArrowLeft:  [-1, 0, 0],
-  ArrowRight: [1, 0, 0],
-  KeyW:       [0, 0, -1],
-  KeyS:       [0, 0, 1],
-  KeyA:       [-1, 0, 0],
-  KeyD:       [1, 0, 0],
-};
-
-// Referee movement logic (WASD/arrow keys)
-function RefereeMover({ refereeRef }: { refereeRef: React.MutableRefObject<THREE.Object3D | null> }) {
-  const keys = useRef<{[key: string]: boolean}>({});
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => { keys.current[e.code] = true; };
-    const up = (e: KeyboardEvent) => { keys.current[e.code] = false; };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-    };
-  }, []);
-  useFrame(() => {
-    let move = [0, 0, 0];
-    for (const code in keyMap) {
-      if (keys.current[code]) {
-        move = [
-          move[0] + keyMap[code][0],
-          move[1] + keyMap[code][1],
-          move[2] + keyMap[code][2],
-        ];
-      }
-    }
-    if (refereeRef.current) {
-      if (move[0] !== 0 || move[1] !== 0 || move[2] !== 0) {
-        const dir = new THREE.Vector3(move[0], move[1], move[2]).normalize().multiplyScalar(moveSpeed);
-        refereeRef.current.position.add(dir);
-      }
-    }
-  });
-  return null;
-}
 
 // --- Add a constant for map boundaries ---
 const MAP_SIZE = 40; // Map is from -MAP_SIZE to +MAP_SIZE in x and z (half as big)
@@ -467,7 +411,7 @@ function InstancedFoodMesh({ items }: { items: FoodItem[] }) {
   if (!gltf || !gltf.scene) return null;
   // Find the first mesh in the GLTF scene
   let meshObj: any = null;
-  gltf.scene.traverse(obj => {
+  gltf.scene.traverse((obj: any) => {
     if (!meshObj && (obj as THREE.Mesh).isMesh) meshObj = obj;
   });
   if (!meshObj || !(meshObj instanceof THREE.Mesh)) return null;
