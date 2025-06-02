@@ -1,6 +1,6 @@
 # ForagingTheory v2
 
-Cursor IDE enhanced upgrade of version 1, with more artistic models and evolving GUI controls.
+Cursor IDE enhanced upgrade of [version 1](https://github.com/Photon1c/ForagingTheoryv1), with more artistic models and evolving GUI controls.
 
 ### Update 6.1.2025- this app is now live [HERE](https://app.netlify.com/projects/foragingtheoryv2/deploys)  
 
