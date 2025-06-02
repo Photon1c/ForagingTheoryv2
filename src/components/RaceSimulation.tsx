@@ -158,9 +158,6 @@ const RaceSimulation: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [showTitle, setShowTitle] = useState<boolean>(true);
   const timerRef = useRef<number | null>(null);
-  const orbitControlsRef = useRef<OrbitControlsImpl | null>(null);
-  const refereeRef = useRef<THREE.Object3D>(null);
-  const [showInstructions, setShowInstructions] = useState<boolean>(false);
   const meshArrayRefs = React.useRef(Array.from({ length: MAX_PLAYERS }, () => ({ current: [] as THREE.Mesh[] }))).current;
   // Memoize all meshes for Outline
   const allPlayerMeshes = React.useMemo(
@@ -436,8 +433,6 @@ const Simulation: React.FC<{
 }> = ({ playerCount, setScores, isGameOver, isSimulationRunning, foodAmount, mapSize, onFoodDepleted, meshArrayRefs, followedPlayerId, setFollowedPlayerId, runMode, setFoodLeft }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const gravity = -18; // units/sec^2
-  const jumpVelocity = 8; // initial jump velocity
 
   // Load backdrop texture
   const backdropTexture = useTexture('/models/backdrop.png');
@@ -742,7 +737,6 @@ const Simulation: React.FC<{
 function FPSControls() {
   const { camera } = useThree();
   const move = useRef({ forward: false, backward: false, left: false, right: false, boost: false, yawLeft: false, yawRight: false });
-  const velocity = useRef(new THREE.Vector3());
   const yaw = useRef(0);
   const baseSpeed = 0.5;
   const boostMultiplier = 3;
