@@ -291,11 +291,19 @@ const RaceSimulation: React.FC = () => {
         </div>
       )}
       {/* Top left title with instructions prompt */}
-      <div className="absolute top-2 left-2 z-50 flex items-center gap-2" style={{ fontSize: 15, fontWeight: 700, color: '#1976d2', whiteSpace: 'nowrap', letterSpacing: 0.5 }}>
+      <div className="absolute top-2 left-2 z-50 flex items-center gap-4" style={{ fontSize: 15, fontWeight: 700, color: '#1976d2', whiteSpace: 'nowrap', letterSpacing: 0.5 }}>
         <span>Foraging Algorithms: Buffet Race experiment</span>
         <span style={{ fontWeight: 500, color: '#fff', background: '#222', borderRadius: 6, padding: '2px 10px', fontSize: 12, marginLeft: 8, opacity: 0.92 }}>
           (Press <b>I</b> for instructions)
         </span>
+        <a
+          href="https://github.com/Photon1c/ForagingTheoryv2"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontWeight: 500, color: '#fff', background: '#222', borderRadius: 6, padding: '2px 10px', fontSize: 12, marginLeft: 8, opacity: 0.92, textDecoration: 'none' }}
+        >
+          Git
+        </a>
       </div>
       {/* Top horizontal scoreboard bar with player scores, timer, and right-aligned label */}
       {(isSimulationRunning || isGameOver) && (
