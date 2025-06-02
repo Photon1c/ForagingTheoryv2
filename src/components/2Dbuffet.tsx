@@ -1,9 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Text, KeyboardControls, useKeyboardControls } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { BuffetCamera } from './buffetcamera';
 
 // Types for our simulation
 interface Player {
@@ -93,61 +90,6 @@ const FoodItemMesh: React.FC<{ item: FoodItem }> = ({ item }) => {
     </mesh>
   );
 };
-
-// Keyboard controls map
-const keyboardMap = [
-  { name: 'moveForward', keys: ['ArrowUp', 'KeyW'] },
-  { name: 'moveBackward', keys: ['ArrowDown', 'KeyS'] },
-  { name: 'moveLeft', keys: ['ArrowLeft', 'KeyA'] },
-  { name: 'moveRight', keys: ['ArrowRight', 'KeyD'] },
-];
-
-// CameraController for WASD/arrow key movement
-const moveSpeed = 0.5;
-const keyMap: { [key: string]: [number, number, number] } = {
-  ArrowUp:    [0, 0, -1],
-  ArrowDown:  [0, 0, 1],
-  ArrowLeft:  [-1, 0, 0],
-  ArrowRight: [1, 0, 0],
-  KeyW:       [0, 0, -1],
-  KeyS:       [0, 0, 1],
-  KeyA:       [-1, 0, 0],
-  KeyD:       [1, 0, 0],
-};
-
-// Referee movement logic (WASD/arrow keys)
-function RefereeMover({ refereeRef }: { refereeRef: React.MutableRefObject<THREE.Object3D | null> }) {
-  const keys = useRef<{[key: string]: boolean}>({});
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => { keys.current[e.code] = true; };
-    const up = (e: KeyboardEvent) => { keys.current[e.code] = false; };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-    };
-  }, []);
-  useFrame(() => {
-    let move = [0, 0, 0];
-    for (const code in keyMap) {
-      if (keys.current[code]) {
-        move = [
-          move[0] + keyMap[code][0],
-          move[1] + keyMap[code][1],
-          move[2] + keyMap[code][2],
-        ];
-      }
-    }
-    if (refereeRef.current) {
-      if (move[0] !== 0 || move[1] !== 0 || move[2] !== 0) {
-        const dir = new THREE.Vector3(move[0], move[1], move[2]).normalize().multiplyScalar(moveSpeed);
-        refereeRef.current.position.add(dir);
-      }
-    }
-  });
-  return null;
-}
 
 // Simulation logic component
 const Simulation: React.FC<{ 
@@ -413,8 +355,6 @@ const Buffet2D: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(60); // Initial time: 60 seconds
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const timerRef = useRef<number | null>(null); // Changed NodeJS.Timeout to number for browser compatibility
-  const orbitControlsRef = useRef<OrbitControlsImpl | null>(null); // Use OrbitControlsImpl and initialize with null
-  const refereeRef = useRef<THREE.Object3D>(null);
 
   const gameDuration = 60; // seconds
 
@@ -540,19 +480,9 @@ const Buffet2D: React.FC = () => {
           </>
         )}
 
-        {/* <KeyboardControls map={keyboardMap}> */}
         <Canvas camera={{ position: [0, 30, 0], up: [0, 1, 0], fov: 55, near: 0.1, far: 1000 }}>
-          <BuffetCamera position={[0, 30, 0]} lookAt={[0, 0, 0]} />
-          <ambientLight intensity={0.5} />
-          {/* 
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color="magenta" />
-          </mesh>
-          */}
           <Simulation playerCount={playerCount} setScores={setScores} isGameOver={isGameOver} />
         </Canvas>
-        {/* </KeyboardControls> */}
       </div>
     </div>
   );
