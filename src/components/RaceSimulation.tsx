@@ -146,19 +146,33 @@ const MAP_SIZE = 40; // Map is from -MAP_SIZE to +MAP_SIZE in x and z (half as b
 const INSTRUCTIONS = `\n[Base Template] This is a foundational project for foraging theory experiments. Advanced concepts and features are in development.\n\n🍽️ Welcome to Buffet Race! 🍽️\n\nThis simulation is inspired by foraging theory and natural systems.\n\nApplications & Concepts:\n\n- 🦉 Foraging Theory: Study how agents (players) search for and consume resources (food) in a shared environment.\n- 🧑‍🤝‍🧑 Producer-Scrounger Models: Explore how some agents find food while others exploit their discoveries.\n- 🦆 Ideal Free Distribution: See how agents distribute themselves among food patches to maximize intake.\n- 🌳 Marginal Value Theorem: Understand when agents should leave a depleted patch for a richer one.\n- 🏗️ Asset Modeling: Use this as a base for 3D asset or crowd simulation.\n- 🌱 Natural Systems: Model animal, human, or robot foraging, resource competition, and more!\n\nControls:\n- Press 'Start' to begin the race.\n- Use the parameters bar to set player and food count.\n- Press 'i' to toggle these instructions.\n- Watch the scorecard for live results!\n\nHave fun exploring! 🚀`;
 
 // --- Main component ---
-const MAX_PLAYERS = 8;
-const RaceSimulation: React.FC = () => {
-  const [playerCount, setPlayerCount] = useState<number>(4);
-  const [foodAmount, setFoodAmount] = useState<number>(15000);
-  const [minutes, setMinutes] = useState<number>(720);
+interface RaceSimulationProps {
+  playerCount: number;
+  foodAmount: number;
+  minutes: number;
+  isSimulationRunning: boolean;
+  isGameOver: boolean;
+  setIsGameOver: (v: boolean) => void;
+  setIsSimulationRunning: (v: boolean) => void;
+  handlePlayAgain: () => void;
+}
+
+const RaceSimulation: React.FC<RaceSimulationProps> = ({
+  playerCount,
+  foodAmount,
+  minutes,
+  isSimulationRunning,
+  isGameOver,
+  setIsGameOver,
+  setIsSimulationRunning,
+  handlePlayAgain,
+}) => {
   const [scores, setScores] = useState<number[]>([]);
   const [foodLeft, setFoodLeft] = useState<number>(0);
-  const [isSimulationRunning, setIsSimulationRunning] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(60); // Initial time: 60 seconds
-  const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [showTitle, setShowTitle] = useState<boolean>(true);
   const timerRef = useRef<number | null>(null);
-  const meshArrayRefs = React.useRef(Array.from({ length: MAX_PLAYERS }, () => ({ current: [] as THREE.Mesh[] }))).current;
+  const meshArrayRefs = React.useRef(Array.from({ length: playerCount }, () => ({ current: [] as THREE.Mesh[] }))).current;
   // Memoize all meshes for Outline
   const allPlayerMeshes = React.useMemo(
     () => meshArrayRefs.slice(0, playerCount).flatMap(ref => ref.current || []),
@@ -207,10 +221,6 @@ const RaceSimulation: React.FC = () => {
     setIsSimulationRunning(true);
   };
 
-  const handlePlayAgain = () => {
-    startSimulation();
-  };
-
   // Callback for Simulation to notify when food runs out
   const handleFoodDepleted = () => {
     setIsGameOver(true);
@@ -243,56 +253,10 @@ const RaceSimulation: React.FC = () => {
       {/* Instructions Modal */}
       {showInstructions && <DraggableResizableInstructionsModal onClose={() => setShowInstructions(false)} />}
       {/* Fixed parameters bar at the top, only before race starts */}
-      {!isSimulationRunning && !isGameOver && (
-        <div className="w-full flex flex-row items-center px-2 bg-white z-10">
-          <label htmlFor="playerCount" className="text-xs mr-1 whitespace-nowrap text-gray-800">Players:</label>
-          <input
-            id="playerCount"
-            type="number"
-            min="1"
-            max="8"
-            value={playerCount}
-            onChange={(e) => setPlayerCount(Math.max(1, Math.min(8, parseInt(e.target.value) || 1)))}
-            className="px-1 py-0.5 rounded bg-gray-100 text-gray-900 border border-gray-400 w-10 text-center text-xs"
-            style={{ height: 28 }}
-          />
-          <label htmlFor="foodAmount" className="text-xs ml-2 mr-1 whitespace-nowrap text-gray-800">Food:</label>
-          <input
-            id="foodAmount"
-            type="number"
-            min="1"
-            max="20000"
-            value={foodAmount}
-            onChange={(e) => setFoodAmount(Math.max(1, Math.min(20000, parseInt(e.target.value) || 1)))}
-            className="px-1 py-0.5 rounded bg-gray-100 text-gray-900 border border-gray-400 w-12 text-center text-xs"
-            style={{ height: 28 }}
-          />
-          <label htmlFor="minutes" className="text-xs ml-2 mr-1 whitespace-nowrap text-gray-800">Minutes:</label>
-          <input
-            id="minutes"
-            type="number"
-            min="1"
-            max="720"
-            value={minutes}
-            onChange={(e) => setMinutes(Math.max(1, Math.min(720, parseInt(e.target.value) || 1)))}
-            className="px-1 py-0.5 rounded bg-gray-100 text-gray-900 border border-gray-400 w-12 text-center text-xs"
-            style={{ height: 28 }}
-          />
-          <button
-            onClick={startSimulation}
-            className="ml-2 rounded bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white transition-colors border border-blue-700"
-            style={{ height: 28, padding: '0 14px', minWidth: 0, lineHeight: 1.1 }}
-          >
-            Start
-          </button>
-          <span className="text-xs font-bold tracking-widest text-gray-800 select-none ml-4" style={{ transition: 'opacity 0.7s' }}>Buffet Race!</span>
-          {/* Performance note for high values */}
-          <span className="ml-4 text-xs text-red-600 font-semibold">High food/timer values may impact performance. Instancing will be used for 15,000+ food.</span>
-        </div>
-      )}
-      {/* Top left title with instructions prompt */}
-      <div className="absolute top-2 left-2 z-50 flex items-center gap-4" style={{ fontSize: 15, fontWeight: 700, color: '#1976d2', whiteSpace: 'nowrap', letterSpacing: 0.5 }}>
-        <span>Foraging Algorithms: Buffet Race experiment</span>
+      {/* Parameter bar removed: now handled by App.tsx */}
+      {/* Top right title with instructions prompt */}
+      <div className="absolute top-2 right-2 z-50 flex items-center gap-4 justify-end" style={{ fontSize: 15, fontWeight: 700, color: '#1976d2', whiteSpace: 'nowrap', letterSpacing: 0.5, textAlign: 'right' }}>
+        <span>Foraging Algorithms: Buffet Race Experiment</span>
         <span style={{ fontWeight: 500, color: '#fff', background: '#222', borderRadius: 6, padding: '2px 10px', fontSize: 12, marginLeft: 8, opacity: 0.92 }}>
           (Press <b>I</b> for instructions)
         </span>
