@@ -166,6 +166,7 @@ const RaceSimulation: React.FC = () => {
   );
   const [followedPlayerId, setFollowedPlayerId] = useState<number | null>(null);
   const [runMode, setRunMode] = useState(false);
+  const [showInstructions, setShowInstructions] = useState<boolean>(false);
 
   // Hide the title after 15 seconds
   useEffect(() => {
@@ -220,7 +221,7 @@ const RaceSimulation: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'i' || e.key === 'I') {
-        setShowInstructions((prev) => !prev);
+        setShowInstructions((prev: boolean) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -230,7 +231,7 @@ const RaceSimulation: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'r' || e.key === 'R') {
-        setRunMode((prev) => !prev);
+        setRunMode((prev: boolean) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
