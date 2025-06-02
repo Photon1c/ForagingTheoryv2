@@ -2,7 +2,9 @@
 
 Cursor IDE enhanced upgrade of version 1, with more artistic models and evolving GUI controls.
 
-### Update 6.1.2025- this app is now live [HERE](https://app.netlify.com/projects/foragingtheoryv2/deploys)
+### Update 6.1.2025- this app is now live [HERE](https://app.netlify.com/projects/foragingtheoryv2/deploys)  
+
+![sample](media/sample.gif)
 
 # 🍽️ AKA Buffet Race! Version 2 🍽️
 
