@@ -36,7 +36,6 @@ export function updateBuffetPlayers(
     verticalVelocity: p.verticalVelocity ?? 0
   }));
   const updatedFoodItems = foodItems.map(f => ({ ...f, position: f.position.clone() }));
-  let scoresChanged = false;
   updatedPlayers.forEach(player => {
     // AI movement logic - move toward nearest food
     const availableFoodItems = updatedFoodItems.filter(food => !food.consumed);
@@ -111,7 +110,6 @@ export function updateBuffetPlayers(
       if (foodToConsume && !foodToConsume.consumed) {
         foodToConsume.consumed = true;
         player.score += 1;
-        scoresChanged = true;
       }
     }
   });
