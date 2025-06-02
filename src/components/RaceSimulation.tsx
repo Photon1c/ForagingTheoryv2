@@ -149,7 +149,6 @@ const INSTRUCTIONS = `\n[Base Template] This is a foundational project for forag
 interface RaceSimulationProps {
   playerCount: number;
   foodAmount: number;
-  minutes: number;
   isSimulationRunning: boolean;
   isGameOver: boolean;
   setIsGameOver: (v: boolean) => void;
@@ -160,7 +159,6 @@ interface RaceSimulationProps {
 const RaceSimulation: React.FC<RaceSimulationProps> = ({
   playerCount,
   foodAmount,
-  minutes,
   isSimulationRunning,
   isGameOver,
   setIsGameOver,
