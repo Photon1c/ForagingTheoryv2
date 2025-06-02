@@ -83,21 +83,24 @@ function App() {
       )}
       {/* Switch to 2D mode button (only after simulation starts) */}
       {showSwitch2D && (
-        <div style={{ position: 'absolute', top: 12, right: 24, zIndex: 100, display: 'flex', gap: 8 }}>
+        <div style={{ position: 'absolute', top: 36, right: 24, zIndex: 100, display: 'flex', gap: 8 }}>
           <button
             onClick={() => setMode('2d')}
             style={{
               background: '#222',
               color: '#fff',
               border: 'none',
-              borderRadius: 6,
-              padding: '4px 16px',
-              fontSize: 13,
+              borderRadius: 5,
+              padding: '2px 10px',
+              fontSize: 11,
               fontWeight: 600,
               cursor: 'pointer',
               boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
               opacity: 0.92,
               transition: 'background 0.2s',
+              minHeight: 0,
+              minWidth: 0,
+              lineHeight: 1.1,
             }}
           >
             Switch to 2D Mode
@@ -109,7 +112,6 @@ function App() {
         <RaceSimulation
           playerCount={playerCount}
           foodAmount={foodAmount}
-          minutes={minutes}
           isSimulationRunning={isSimulationRunning}
           isGameOver={isGameOver}
           setIsGameOver={setIsGameOver}
