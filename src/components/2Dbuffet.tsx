@@ -92,11 +92,12 @@ const FoodItemMesh: React.FC<{ item: FoodItem }> = ({ item }) => {
 };
 
 // Simulation logic component
-const Simulation: React.FC<{ 
-  playerCount: number, 
+const Simulation: React.FC<{
+  playerCount: number,
+  foodAmount: number,
   setScores: React.Dispatch<React.SetStateAction<number[]>>,
   isGameOver: boolean
-}> = ({ playerCount, setScores, isGameOver }) => {
+}> = ({ playerCount, foodAmount, setScores, isGameOver }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   
@@ -142,14 +143,14 @@ const Simulation: React.FC<{
     const foodTypes: ('cube' | 'sphere' | 'triangle')[] = ['cube', 'sphere', 'triangle'];
     const foodColors = ['#FF9999', '#99FF99', '#9999FF', '#FFFF99', '#FF99FF', '#99FFFF'];
     
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < foodAmount; i++) {
       newFoodItems.push({
         id: i,
         position: new Vector4(
-          (Math.random() - 0.5) * 20, // Spread food over a smaller area, e.g., within +/- 10 for X
-          (Math.random() - 0.5) * 20, // Spread food over a smaller area, e.g., within +/- 10 for Y (before projection)
-          (Math.random() - 0.5) * 20, // Spread food over a smaller area, e.g., within +/- 10 for Z
-          Math.random() * 5 // w-coordinate: 0 to 5. Keeps scale factor in projectTo3D between 0.5 and 1
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 20,
+          Math.random() * 5
         ),
         type: foodTypes[Math.floor(Math.random() * foodTypes.length)],
         consumed: false,
@@ -159,7 +160,7 @@ const Simulation: React.FC<{
     
     setFoodItems(newFoodItems);
     
-  }, [playerCount]); // Removed camera from dependencies as it's static here
+  }, [playerCount, foodAmount]); // Removed camera from dependencies as it's static here
   
   // Game loop
   useFrame((_, delta) => {
@@ -347,29 +348,42 @@ const Simulation: React.FC<{
   );
 };
 
-// Main component
-const Buffet2D: React.FC = () => {
-  const [playerCount, setPlayerCount] = useState<number>(4);
+interface Buffet2DProps {
+  playerCount: number;
+  foodAmount: number;
+  minutes: number;
+  isSimulationRunning: boolean;
+  isGameOver: boolean;
+  setIsGameOver: (v: boolean) => void;
+  setIsSimulationRunning: (v: boolean) => void;
+  handlePlayAgain: () => void;
+  switchTo3D: () => void;
+}
+
+const Buffet2D: React.FC<Buffet2DProps> = ({
+  playerCount,
+  foodAmount,
+  minutes,
+  isSimulationRunning,
+  isGameOver,
+  setIsGameOver,
+  setIsSimulationRunning,
+  handlePlayAgain,
+  switchTo3D,
+}) => {
   const [scores, setScores] = useState<number[]>([]);
-  const [isSimulationRunning, setIsSimulationRunning] = useState<boolean>(false);
-  const [timeLeft, setTimeLeft] = useState<number>(60); // Initial time: 60 seconds
-  const [isGameOver, setIsGameOver] = useState<boolean>(false);
-  const timerRef = useRef<number | null>(null); // Changed NodeJS.Timeout to number for browser compatibility
-
-  const gameDuration = 60; // seconds
-
-  console.log("Buffet2D rendering. isSimulationRunning:", isSimulationRunning, "isGameOver:", isGameOver); // Add this log
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(minutes * 60);
+  const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Temporarily disable the timer to reduce re-renders
-    // RE-ENABLING TIMER:
-    if (isSimulationRunning && !isGameOver) {
+    if (isSimulationRunning && !isPaused && !isGameOver) {
       timerRef.current = setInterval(() => {
         setTimeLeft(prevTime => {
           if (prevTime <= 1) {
             clearInterval(timerRef.current!);
             setIsGameOver(true);
-            setIsSimulationRunning(false); // Stop simulation to show end screen
+            setIsSimulationRunning(false);
             return 0;
           }
           return prevTime - 1;
@@ -383,55 +397,23 @@ const Buffet2D: React.FC = () => {
         clearInterval(timerRef.current);
       }
     };
-    // END RE-ENABLING TIMER
-  }, [isSimulationRunning, isGameOver]);
-  
-  const startSimulation = () => {
-    console.log("startSimulation called"); // Add this log
-    setScores(Array(playerCount).fill(0));
-    setTimeLeft(gameDuration);
-    setIsGameOver(false);
-    setIsSimulationRunning(true);
+  }, [isSimulationRunning, isPaused, isGameOver, setIsGameOver, setIsSimulationRunning]);
+
+  useEffect(() => {
+    setTimeLeft(minutes * 60);
+  }, [minutes, isSimulationRunning]);
+
+  const handlePauseResume = () => {
+    setIsPaused((prev) => !prev);
   };
 
-  const handlePlayAgain = () => {
-    startSimulation();
-  };
-  
-  // FORCE START SCREEN FOR TESTING
-  const forceShowStartScreen = false; // Ensure this is false to test button logic
+  // Game Over Screen
+  const showGameOverScreen = !isSimulationRunning && isGameOver;
 
   return (
     <div className="w-full h-screen flex flex-col bg-gray-900 text-white relative">
-      {/* Start Screen - shown based on state, overlays Canvas */}
-      {(forceShowStartScreen || (!isSimulationRunning && !isGameOver)) && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-20">
-          <h1 className="text-4xl font-bold mb-8">4D Buffet Race Simulation</h1>
-          <div className="mb-6">
-            <label htmlFor="playerCount" className="block text-lg mb-2">
-              Number of Players:
-            </label>
-            <input
-              id="playerCount"
-              type="number"
-              min="1"
-              max="8"
-              value={playerCount}
-              onChange={(e) => setPlayerCount(Math.max(1, Math.min(8, parseInt(e.target.value) || 1)))}
-              className="px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 w-32 text-center"
-            />
-          </div>
-          <button
-            onClick={startSimulation}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-semibold transition-colors"
-          >
-            Start Race
-          </button>
-        </div>
-      )}
-
-      {/* Game Over Screen - shown based on state, overlays Canvas */}
-      {(!isSimulationRunning && isGameOver) && (
+      {/* Game Over Screen - overlays Canvas */}
+      {showGameOverScreen && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-20">
           <h1 className="text-4xl font-bold mb-4">Race Over!</h1>
           <h2 className="text-2xl mb-8">Final Scores:</h2>
@@ -454,9 +436,8 @@ const Buffet2D: React.FC = () => {
           </button>
         </div>
       )}
-
       {/* Canvas and In-Game UI - always rendered, visibility of UI elements controlled by state */}
-      <div className={`w-full h-full ${isSimulationRunning && !isGameOver ? 'visible' : 'invisible'}`}> 
+      <div className={`w-full h-full ${isSimulationRunning && !isGameOver ? 'visible' : 'invisible'}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 60 }}>
         {/* Score Cards and Timer - only visible during active simulation */}
         {(isSimulationRunning && !isGameOver) && (
           <>
@@ -474,15 +455,28 @@ const Buffet2D: React.FC = () => {
                 ))}
               </div>
             </div>
-            <div className="absolute top-4 right-4 z-10 p-3 bg-black bg-opacity-70 text-white rounded-lg shadow-xl">
+            <div className="absolute top-4 right-4 z-10 p-3 bg-black bg-opacity-70 text-white rounded-lg shadow-xl flex items-center gap-4">
               <span className="font-mono text-2xl">Time: {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}</span>
+              <button
+                onClick={handlePauseResume}
+                className="ml-2 rounded bg-yellow-500 hover:bg-yellow-600 text-xs font-semibold text-black transition-colors border border-yellow-700 px-4 py-2"
+              >
+                {isPaused ? 'Resume' : 'Pause'}
+              </button>
+              <button
+                onClick={switchTo3D}
+                className="ml-2 rounded bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white transition-colors border border-blue-700 px-4 py-2"
+              >
+                Switch to 3D Mode
+              </button>
             </div>
           </>
         )}
-
-        <Canvas camera={{ position: [0, 30, 0], up: [0, 1, 0], fov: 55, near: 0.1, far: 1000 }}>
-          <Simulation playerCount={playerCount} setScores={setScores} isGameOver={isGameOver} />
-        </Canvas>
+        <div style={{ transform: 'scale(0.5)', transformOrigin: 'top center', width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <Canvas camera={{ position: [0, 30, 0], up: [0, 1, 0], fov: 55, near: 0.1, far: 1000 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
+            <Simulation playerCount={playerCount} foodAmount={foodAmount} setScores={setScores} isGameOver={isGameOver} />
+          </Canvas>
+        </div>
       </div>
     </div>
   );
