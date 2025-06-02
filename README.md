@@ -2,6 +2,8 @@
 
 Cursor IDE enhanced upgrade of version 1, with more artistic models and evolving GUI controls.
 
+### Update 6.1.2025- this app is now live [HERE](https://app.netlify.com/projects/foragingtheoryv2/deploys)
+
 # 🍽️ AKA Buffet Race! Version 2 🍽️
 
 Welcome to Buffet Race! A 3D foraging simulation and playground for exploring natural and artificial intelligence, resource competition, and more. Built with React, Three.js, and TypeScript.
