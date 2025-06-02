@@ -100,7 +100,7 @@ These concepts are highly relevant to AI, robotics, and resource management syst
 - **Instructions:** The in-app instructions also note that this is a base template and that advanced features are in progress.
 
 ## GitHub Repository
-[Photon1c/ForagingTheory](https://github.com/Photon1c/ForagingTheory)
+[Photon1c/ForagingTheoryv2](https://github.com/Photon1c/ForagingTheoryv2)
 
 ---
 
